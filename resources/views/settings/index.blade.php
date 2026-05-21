@@ -1,84 +1,213 @@
 <x-admin-layout>
-    <div class="flex flex-col space-y-8 max-w-6xl mx-auto">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="space-y-6" x-data="{ 
+        showAddModal: false, 
+        showEditModal: false,
+        editData: { id: '', port_name: '', amount: '' },
+        openEdit(id, name, amount) {
+            this.editData = { id: id, port_name: name, amount: amount };
+            this.showEditModal = true;
+        }
+    }">
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
             <div>
-                <h1 class="text-2xl font-black text-slate-800 tracking-tight italic">System Configuration</h1>
-                <p class="text-[13px] font-medium text-slate-500 mt-1">Manage your agency profile, cartage rates, and billing defaults.</p>
+                <h1 class="text-2xl font-bold text-[#0f172a]">Agency Configuration</h1>
+                <p class="text-[#64748b] text-[14px] mt-1">Manage global defaults, company identity and billing rates</p>
             </div>
-            <div class="flex items-center space-x-2">
-                <span class="px-3 py-1.5 bg-indigo-50 text-indigo-700 text-[10px] font-bold rounded-xl border border-indigo-100 uppercase tracking-widest">
-                    Admin Exclusive
-                </span>
+            <div class="flex items-center gap-2">
+                <span class="badge-c warning py-1.5 px-3 uppercase tracking-widest text-[10px]">Administrative Access Only</span>
             </div>
         </div>
 
-        <form action="{{ route('settings.update') }}" method="POST" class="space-y-8">
-            @csrf
-            
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <!-- Navigation Tabs (Visual Only for now) -->
-                <div class="lg:col-span-3">
-                    <nav class="space-y-1">
-                        @foreach($settings as $group => $items)
-                            <a href="#group-{{ $group }}" class="flex items-center px-4 py-3 text-[13px] font-bold rounded-xl transition-all {{ $loop->first ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-slate-500 hover:bg-slate-100' }}">
-                                <span class="uppercase tracking-widest">{{ str_replace('_', ' ', $group) }}</span>
-                            </a>
-                        @endforeach
-                    </nav>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Navigation Sidebar (Internal) -->
+            <div class="lg:col-span-3 space-y-1">
+                <div class="text-[11px] font-bold text-[#64748b] uppercase tracking-widest px-3 mb-2">Configuration Groups</div>
+                @foreach($settings as $group => $items)
+                    @if($group !== 'cartage')
+                        <a href="#group-{{ $group }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ $loop->first ? 'bg-[#1565c0] text-white shadow-lg' : 'text-[#64748b] hover:bg-white hover:text-[#0f172a]' }}">
+                            <i class="bi bi-{{ $group == 'agency' ? 'building' : 'sliders' }}"></i>
+                            <span class="text-[13px] font-bold uppercase tracking-widest">{{ str_replace('_', ' ', $group) }}</span>
+                        </a>
+                    @endif
+                @endforeach
+                
+                <div class="pt-4 pb-2 px-3">
+                    <div class="h-px bg-[#e5e9f2] w-full"></div>
                 </div>
 
-                <!-- Settings Forms -->
-                <div class="lg:col-span-9 space-y-8">
-                    @foreach($settings as $group => $items)
-                        <div id="group-{{ $group }}" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
-                                        @if($group == 'agency')
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                                        @elseif($group == 'cartage')
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1zM13 16l5 2V7l-5 2m0 7h5m-5-7h5"/></svg>
-                                        @else
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
-                                        @endif
-                                    </div>
-                                    <h3 class="text-[13px] font-black text-slate-700 uppercase tracking-widest">{{ str_replace('_', ' ', $group) }} Profile</h3>
-                                </div>
-                            </div>
-                            <div class="p-6">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                                    @foreach($items as $setting)
-                                        <div class="space-y-1.5">
-                                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em] ml-1">{{ str_replace(['agency_', '_'], ['', ' '], $setting->key) }}</label>
-                                            <div class="relative group">
-                                                <input type="text" name="{{ $setting->key }}" value="{{ $setting->value }}" 
-                                                    class="block w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] font-bold text-slate-700 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all">
-                                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <svg class="h-4 w-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
+                <a href="#group-cartage" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#64748b] hover:bg-white hover:text-[#0f172a] transition-all">
+                    <i class="bi bi-truck-flatbed"></i>
+                    <span class="text-[13px] font-bold uppercase tracking-widest">Cartage Ports</span>
+                </a>
+            </div>
 
-                    <div class="flex items-center justify-between p-6 bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50">
-                        <div class="flex items-center space-x-3">
-                            <div class="p-2 bg-slate-700 rounded-lg text-slate-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <!-- Forms Container -->
+            <div class="lg:col-span-9 space-y-8">
+                <!-- Dynamic Cartage Management (Standalone Section) -->
+                <div id="group-cartage" class="card-c overflow-hidden transition-all scroll-mt-20">
+                    <div class="card-head bg-[#f8fafc]/50 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-white border border-[#e5e9f2] grid place-items-center text-[#1565c0] shadow-sm">
+                                <i class="bi bi-truck text-lg"></i>
                             </div>
-                            <p class="text-[11px] text-slate-400 font-medium max-w-[300px]">Changes applied here will affect business reports and system defaults globally.</p>
+                            <div>
+                                <h3 class="text-[14px] font-bold text-[#0f172a] uppercase tracking-widest">Cartage Management <span class="text-[10px] bg-indigo-50 px-2 py-0.5 rounded text-indigo-400">Total: {{ $cartageCount }}</span></h3>
+                                <p class="text-[11px] text-[#64748b] font-medium">Manage dynamic ports and their respective rates</p>
+                            </div>
                         </div>
-                        <button type="submit" class="inline-flex items-center px-8 py-3 bg-indigo-500 hover:bg-indigo-600 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-indigo-500/30 transition-all active:scale-95 group">
-                            <svg class="w-4 h-4 mr-2.5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
-                            Commit Changes
+                        <button type="button" @click="showAddModal = true" class="btn-brand py-2 px-4 text-[11px] uppercase tracking-widest border-none">
+                            <i class="bi bi-plus-lg me-1"></i> Add Cartage
                         </button>
                     </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="table-c">
+                            <thead>
+                                <tr>
+                                    <th>Port Name</th>
+                                    <th class="text-right">Amount (PKR)</th>
+                                    <th class="text-center">Created Date</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-[#f1f5f9]">
+                                @forelse($cartages as $cartage)
+                                    <tr class="hover:bg-[#f8fafc]">
+                                        <td><div class="font-bold text-[#0f172a] uppercase tracking-tight">{{ $cartage->port_name }}</div></td>
+                                        <td class="text-right font-black text-[#1565c0]">{{ number_format($cartage->amount, 2) }}</td>
+                                        <td class="text-center text-[#64748b] text-[11px] font-medium">{{ $cartage->created_at->format('d M, Y') }}</td>
+                                        <td class="text-right">
+                                            <div class="flex justify-end gap-2">
+                                                <button type="button" @click="openEdit('{{ $cartage->id }}', '{{ $cartage->port_name }}', '{{ $cartage->amount }}')" 
+                                                    class="w-8 h-8 rounded-lg bg-white border border-[#e5e9f2] text-[#1565c0] hover:bg-[#1565c0] hover:text-white transition-all grid place-items-center shadow-sm">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+                                                <form action="{{ route('cartages.destroy', $cartage) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this cartage entry?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="w-8 h-8 rounded-lg bg-white border border-[#e5e9f2] text-rose-500 hover:bg-rose-500 hover:text-white transition-all grid place-items-center shadow-sm">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center py-20 text-[#64748b] bg-[#f8fafc]/30">
+                                            <div class="flex flex-col items-center justify-center opacity-40">
+                                                <i class="bi bi-truck-flatbed text-5xl mb-4"></i>
+                                                <div class="font-black uppercase tracking-widest text-[13px]">No Ports Configured</div>
+                                                <p class="text-[11px] mt-2 normal-case font-medium">Add your first cartage port to start using dynamic rates.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
+                <!-- Static Settings Form -->
+                <form action="{{ route('settings.update') }}" method="POST" class="space-y-6">
+                    @csrf
+                    @foreach($settings as $group => $items)
+                        @if($group !== 'cartage')
+                            <div id="group-{{ $group }}" class="card-c overflow-hidden transition-all scroll-mt-20">
+                                <div class="card-head bg-[#f8fafc]/50">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-white border border-[#e5e9f2] grid place-items-center text-[#1565c0] shadow-sm">
+                                            <i class="bi bi-{{ $group == 'agency' ? 'building' : 'sliders' }} text-lg"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-[14px] font-bold text-[#0f172a] uppercase tracking-widest">{{ str_replace('_', ' ', $group) }} Settings</h3>
+                                            <p class="text-[11px] text-[#64748b] font-medium">Update {{ $group }} related parameters</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-6">
+                                    <div class="grid-2-cols">
+                                        @foreach($items as $setting)
+                                            <div class="space-y-1">
+                                                <label class="form-label-c ml-1">{{ str_replace(['agency_', '_'], ['', ' '], $setting->key) }}</label>
+                                                <input type="text" name="{{ $setting->key }}" value="{{ $setting->value }}" class="form-input-c">
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    @endforeach
+
+                    <!-- Submit Bar -->
+                    <div class="card-c p-4 bg-[#0b1f3a] border-none flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/60">
+                                <i class="bi bi-info-circle text-xl"></i>
+                            </div>
+                            <p class="text-[12px] text-[#cfd8e8] max-w-[340px]">Global changes will be applied instantly across all billing and reporting modules.</p>
+                        </div>
+                        <button type="submit" class="w-full md:w-auto btn-brand border-none px-10 py-3 text-[12px] uppercase tracking-[0.2em]">
+                            <i class="bi bi-check2-circle me-2"></i> Save Configuration
+                        </button>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
+
+        <!-- Modals moved to bottom of scope -->
+        <!-- Add Modal -->
+        <div x-show="showAddModal" x-cloak class="modal-overlay-c">
+            <div class="modal-content-c" @click.away="showAddModal = false">
+                <div class="modal-header-c">
+                    <h3 class="font-black text-[#0f172a] uppercase tracking-widest text-sm">Add New Cartage</h3>
+                    <button type="button" @click="showAddModal = false" class="text-[#64748b] hover:text-[#0f172a]"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <form action="{{ route('cartages.store') }}" method="POST" class="modal-body-c space-y-5">
+                    @csrf
+                    <div>
+                        <label class="form-label-c">Port Name</label>
+                        <input type="text" name="port_name" required placeholder="e.g. KICT, Port Qasim" class="form-input-c">
+                    </div>
+                    <div>
+                        <label class="form-label-c">Cartage Amount (PKR)</label>
+                        <input type="number" step="0.01" name="amount" required placeholder="0.00" class="form-input-c">
+                    </div>
+                    <div class="pt-2">
+                        <button type="submit" class="w-full btn-brand py-3 text-[12px] uppercase tracking-widest border-none">
+                            Save Cartage Entry
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Modal -->
+        <div x-show="showEditModal" x-cloak class="modal-overlay-c">
+            <div class="modal-content-c" @click.away="showEditModal = false">
+                <div class="modal-header-c">
+                    <h3 class="font-black text-[#0f172a] uppercase tracking-widest text-sm">Edit Cartage Entry</h3>
+                    <button type="button" @click="showEditModal = false" class="text-[#64748b] hover:text-[#0f172a]"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <form :action="'{{ url('cartages') }}/' + editData.id" method="POST" class="modal-body-c space-y-5">
+                    @csrf
+                    @method('PUT')
+                    <div>
+                        <label class="form-label-c">Port Name</label>
+                        <input type="text" name="port_name" x-model="editData.port_name" required class="form-input-c">
+                    </div>
+                    <div>
+                        <label class="form-label-c">Cartage Amount (PKR)</label>
+                        <input type="number" step="0.01" name="amount" x-model="editData.amount" required class="form-input-c">
+                    </div>
+                    <div class="pt-2">
+                        <button type="submit" class="w-full btn-brand py-3 text-[12px] uppercase tracking-widest border-none">
+                            Update Cartage Entry
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </x-admin-layout>

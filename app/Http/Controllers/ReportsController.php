@@ -196,4 +196,184 @@ class ReportsController extends Controller
             'thisMonthRevenue', 'thisMonthReceived', 'thisMonthPending'
         ));
     }
+
+    private function getSalesTaxData(Request $request)
+    {
+        $query = Bill::with('client')->orderBy('date');
+
+        if ($request->filled('month')) {
+            $date = \Carbon\Carbon::parse($request->month);
+            $query->whereYear('date', $date->year)->whereMonth('date', $date->month);
+        } elseif ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('date', [$request->start_date, $request->end_date]);
+        } else {
+            // Default to current month if no filter applied
+            if (!$request->has('clear_filters')) {
+                $query->whereYear('date', now()->year)->whereMonth('date', now()->month);
+            }
+        }
+
+        if ($request->filled('client_id')) {
+            $query->where('client_id', $request->client_id);
+        }
+        
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->whereHas('client', function($q2) use ($request) {
+                    $q2->where('ntn_no', 'like', '%'.$request->search.'%')
+                      ->orWhere('name', 'like', '%'.$request->search.'%');
+                })->orWhere('bill_no', 'like', '%'.$request->search.'%');
+            });
+        }
+
+        $bills = $query->get();
+        $groupedBills = $bills->groupBy('client_id');
+        
+        $grandTotalInvoices = $bills->count();
+        $grandTotalAgency = $bills->sum('agency_commission');
+        $grandTotalSalesTax = $bills->sum('sales_tax_amount');
+        
+        $summary = [];
+        foreach ($groupedBills as $clientId => $clientBills) {
+            $client = $clientBills->first()->client;
+            $summary[] = (object) [
+                'client_name' => $client->name,
+                'ntn_no' => $client->ntn_no ?? '-',
+                'invoice_count' => $clientBills->count(),
+                'agency_commission' => $clientBills->sum('agency_commission'),
+                'sales_tax' => $clientBills->sum('sales_tax_amount'),
+            ];
+        }
+
+        return compact('groupedBills', 'summary', 'grandTotalInvoices', 'grandTotalAgency', 'grandTotalSalesTax');
+    }
+
+    public function salesTax(Request $request)
+    {
+        $data = $this->getSalesTaxData($request);
+        $clients = Client::orderBy('name')->get();
+        
+        return view('reports.sales-tax', array_merge($data, ['clients' => $clients]));
+    }
+
+    public function printSalesTax(Request $request)
+    {
+        $data = $this->getSalesTaxData($request);
+        return view('reports.sales-tax-print', $data);
+    }
+
+    public function expenses(Request $request)
+    {
+        $query = \App\Models\Expense::with('category')->latest('expense_date');
+
+        if ($request->filled('month')) {
+            $date = \Carbon\Carbon::parse($request->month);
+            $query->whereYear('expense_date', $date->year)->whereMonth('expense_date', $date->month);
+        } elseif ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('expense_date', [$request->start_date, $request->end_date]);
+        } else {
+             if (!$request->has('clear_filters')) {
+                $query->whereYear('expense_date', now()->year)->whereMonth('expense_date', now()->month);
+            }
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('expense_category_id', $request->category_id);
+        }
+        
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+        
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $expenses = $query->get();
+
+        $totalExpenses = $expenses->sum('amount');
+        
+        $salaryExpenses = $expenses->filter(function($expense) {
+            return stripos($expense->category->name ?? '', 'Salary') !== false;
+        })->sum('amount');
+
+        $utilityExpenses = $expenses->filter(function($expense) {
+            return stripos($expense->category->name ?? '', 'Utility') !== false || stripos($expense->category->name ?? '', 'Bill') !== false;
+        })->sum('amount');
+
+        $categoryBreakdown = $expenses->groupBy(function($item) {
+            return $item->category ? $item->category->name : 'Uncategorized';
+        })->map(function ($group) {
+            return $group->sum('amount');
+        })->sortDesc();
+
+        $paymentMethodBreakdown = $expenses->groupBy('payment_method')->map(function ($group) {
+            return $group->sum('amount');
+        });
+
+        $categories = \App\Models\ExpenseCategory::orderBy('name')->get();
+
+        return view('reports.expenses', compact(
+            'expenses', 
+            'totalExpenses', 
+            'salaryExpenses',
+            'utilityExpenses',
+            'categoryBreakdown', 
+            'paymentMethodBreakdown', 
+            'categories'
+        ));
+    }
+
+    public function financial(Request $request)
+    {
+        $billsQuery = Bill::query();
+        $expensesQuery = \App\Models\Expense::query();
+
+        $monthFilter = request('month', now()->format('Y-m'));
+        $date = \Carbon\Carbon::parse($monthFilter);
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $billsQuery->whereBetween('date', [$request->start_date, $request->end_date]);
+            $expensesQuery->whereBetween('expense_date', [$request->start_date, $request->end_date]);
+        } else {
+            // Default to month filter
+            $billsQuery->whereYear('date', $date->year)->whereMonth('date', $date->month);
+            $expensesQuery->whereYear('expense_date', $date->year)->whereMonth('expense_date', $date->month);
+        }
+
+        $totalRevenue = (clone $billsQuery)->sum('total_amount');
+        $totalReceived = (clone $billsQuery)->sum('paid_amount');
+        
+        $totalPending = (clone $billsQuery)->where(function($q) {
+            $q->where('status', '!=', 'paid')->orWhereNull('status');
+        })->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(total_amount, 0) - COALESCE(paid_amount, 0)'));
+        
+        $totalSalesTax = (clone $billsQuery)->sum('sales_tax_amount');
+
+        // Sum COALESCE(final_amount, amount) for expenses
+        $totalExpenses = (clone $expensesQuery)->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(final_amount, amount)'));
+
+        $deductTax = $request->has('deduct_tax') ? $request->boolean('deduct_tax') : false;
+
+        $netProfit = $totalReceived - $totalExpenses;
+        
+        if ($deductTax) {
+            $netProfit -= $totalSalesTax;
+        }
+
+        return view('reports.financial', compact(
+            'totalRevenue',
+            'totalReceived',
+            'totalPending',
+            'totalSalesTax',
+            'totalExpenses',
+            'netProfit',
+            'deductTax',
+            'monthFilter'
+        ));
+    }
 }

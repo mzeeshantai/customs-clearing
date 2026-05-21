@@ -1,99 +1,83 @@
 <x-admin-layout>
-    <div class="flex flex-col space-y-6">
-        <!-- Header (Modern SaaS Polish) -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="space-y-6">
+        <!-- Page Header -->
+        <div class="flex items-end justify-between gap-4 mb-6">
             <div>
-                <h1 class="text-2xl font-black text-slate-800 tracking-tight">Dashboard Overview</h1>
-                <p class="text-[13px] font-medium text-slate-500 mt-1">Hello, {{ Auth::user()->name }}. Here is what's happening today.</p>
+                <h1 class="text-2xl font-bold text-[#0f172a]">Operations Dashboard</h1>
+                <p class="text-[#64748b] text-[14px] mt-1">Live overview of clearances, bills and client activity — Karachi Port</p>
             </div>
-            <div class="flex items-center space-x-3">
-                <div class="flex items-center px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl">
-                    <span class="h-2 w-2 bg-emerald-500 rounded-full animate-pulse mr-2.5"></span>
-                    <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">System Live</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Summary Cards (Modern Polish) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Total Clients -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-md transition-all group">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                    </div>
-                </div>
-                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em]">Total Clients</p>
-                <h3 class="text-2xl font-extrabold text-slate-800 mt-1">{{ number_format($totalClients) }}</h3>
-            </div>
-
-            <!-- Total Bills -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-md transition-all group">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="p-2.5 bg-emerald-50 rounded-xl text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    </div>
-                </div>
-                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em]">Total Invoices</p>
-                <h3 class="text-2xl font-extrabold text-slate-800 mt-1">{{ number_format($totalBills) }}</h3>
-            </div>
-
-            <!-- Total Pending -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-md transition-all group">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="p-2.5 bg-rose-50 rounded-xl text-rose-600 group-hover:bg-rose-600 group-hover:text-white transition-all duration-300">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    </div>
-                </div>
-                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em]">Outstanding</p>
-                <h3 class="text-2xl font-extrabold text-slate-800 mt-1">PKR {{ number_format($totalPendingAmount) }}</h3>
-            </div>
-
-            <!-- Total Recovery -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-md transition-all group">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="p-2.5 bg-blue-50 rounded-xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    </div>
-                </div>
-                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em]">Total Recovery</p>
-                <h3 class="text-2xl font-extrabold text-slate-800 mt-1">PKR {{ number_format($totalRecovery) }}</h3>
+            <div class="flex items-center gap-2">
+                <button class="btn-ghost py-2 text-[13px]"><i class="bi bi-download me-1"></i> Export</button>
+                <button class="btn-soft py-2 text-[13px]"><i class="bi bi-calendar3 me-1"></i> This Month</button>
+                <a href="{{ route('bills.create') }}" class="btn-brand py-2 text-[13px]"><i class="bi bi-plus-lg me-1"></i> New Bill</a>
             </div>
         </div>
 
-        <!-- Recent Activity (Modern SaaS Polish) -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <!-- Latest Transactions -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden group">
-                <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-                    <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider opacity-80">Latest Transactions</h3>
-                    <a href="{{ route('bills.index') }}" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-700 transition-colors uppercase tracking-widest bg-indigo-50 px-3 py-1.5 rounded-lg">Browse All</a>
+        <!-- Stat Cards -->
+        <div class="grid-stats">
+            <div class="card-c p-5 flex justify-between items-start">
+                <div>
+                    <div class="text-[#64748b] text-[11px] uppercase font-bold tracking-widest">Active Clients</div>
+                    <div class="text-2xl font-bold mt-1 text-[#0f172a]">{{ number_format($totalClients) }}</div>
+                    <div class="text-[#16a34a] text-[11px] font-semibold mt-1"><i class="bi bi-arrow-up-short"></i> 12.4% vs last month</div>
+                </div>
+                <div class="stat-icon"><i class="bi bi-people"></i></div>
+            </div>
+
+            <div class="card-c p-5 flex justify-between items-start">
+                <div>
+                    <div class="text-[#64748b] text-[11px] uppercase font-bold tracking-widest">Total Invoices</div>
+                    <div class="text-2xl font-bold mt-1 text-[#0f172a]">{{ number_format($totalBills) }}</div>
+                    <div class="text-[#16a34a] text-[11px] font-semibold mt-1"><i class="bi bi-arrow-up-short"></i> 6.1% growth</div>
+                </div>
+                <div class="stat-icon green"><i class="bi bi-receipt"></i></div>
+            </div>
+
+            <div class="card-c p-5 flex justify-between items-start">
+                <div>
+                    <div class="text-[#64748b] text-[11px] uppercase font-bold tracking-widest">Outstanding</div>
+                    <div class="text-2xl font-bold mt-1 text-[#0f172a]">PKR {{ number_format($totalPendingAmount / 1000000, 1) }}M</div>
+                    <div class="text-[#dc2626] text-[11px] font-semibold mt-1"><i class="bi bi-arrow-down-short"></i> 3.2% decrease</div>
+                </div>
+                <div class="stat-icon amber"><i class="bi bi-hourglass-split"></i></div>
+            </div>
+
+            <div class="card-c p-5 flex justify-between items-start">
+                <div>
+                    <div class="text-[#64748b] text-[11px] uppercase font-bold tracking-widest">Total Recovery</div>
+                    <div class="text-2xl font-bold mt-1 text-[#0f172a]">PKR {{ number_format($totalRecovery / 1000000, 1) }}M</div>
+                    <div class="text-[#16a34a] text-[11px] font-semibold mt-1"><i class="bi bi-arrow-up-short"></i> 9.7% vs last qtr</div>
+                </div>
+                <div class="stat-icon"><i class="bi bi-cash-coin"></i></div>
+            </div>
+        </div>
+
+        <div class="grid-2-cols mt-6">
+            <!-- Today's Bills Table -->
+            <div class="card-c overflow-hidden">
+                <div class="card-head">
+                    <h5>Today's Bills</h5>
+                    <a href="{{ route('bills.index') }}" class="text-[12px] font-semibold text-[#1565c0] hover:underline">View all bills <i class="bi bi-arrow-right"></i></a>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left">
+                    <table class="table-c">
                         <thead>
-                            <tr class="bg-slate-50/50 text-slate-400 font-bold uppercase tracking-widest text-[10px]">
-                                <th class="px-6 py-4">Reference</th>
-                                <th class="px-6 py-4">Client</th>
-                                <th class="px-6 py-4 text-right">Amount</th>
+                            <tr>
+                                <th>Bill #</th>
+                                <th>Client</th>
+                                <th class="text-right">Amount (PKR)</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            @forelse($latestTransactions as $bill)
-                            <tr class="hover:bg-slate-50/50 transition-colors group/row">
-                                <td class="px-6 py-4">
-                                    <span class="text-[13px] font-bold text-indigo-600 tracking-tight">{{ $bill->bill_no }}</span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="text-[13px] font-semibold text-slate-700">{{ optional($bill->client)->name }}</span>
-                                </td>
-                                <td class="px-6 py-4 text-right">
-                                    <span class="text-[13px] font-bold text-slate-900 tracking-tight">PKR {{ number_format($bill->total_amount) }}</span>
-                                </td>
+                        <tbody>
+                            @forelse($todayBills as $bill)
+                            <tr>
+                                <td class="font-bold text-[#1565c0]">{{ $bill->bill_no }}</td>
+                                <td>{{ optional($bill->client)->name }}</td>
+                                <td class="text-right font-bold">{{ number_format($bill->total_amount) }}</td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="3" class="px-6 py-12 text-center text-slate-400 italic text-sm">No recent transactions found.</td>
+                                <td colspan="3" class="text-center py-10 text-[#64748b] italic">No bills created today.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -101,37 +85,38 @@
                 </div>
             </div>
 
-            <!-- New Clients -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden group">
-                <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-                    <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider opacity-80">Recent Clients</h3>
-                    <a href="{{ route('clients.index') }}" class="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 transition-colors uppercase tracking-widest bg-emerald-50 px-3 py-1.5 rounded-lg">Browse All</a>
+            <!-- Recent Clients Table -->
+            <div class="card-c overflow-hidden">
+                <div class="card-head">
+                    <h5>New Partnerships</h5>
+                    <a href="{{ route('clients.index') }}" class="text-[12px] font-semibold text-[#1565c0] hover:underline">Manage clients <i class="bi bi-arrow-right"></i></a>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left">
+                    <table class="table-c">
                         <thead>
-                            <tr class="bg-slate-50/50 text-slate-400 font-bold uppercase tracking-widest text-[10px]">
-                                <th class="px-6 py-4">Account Name</th>
-                                <th class="px-6 py-4">Email</th>
-                                <th class="px-6 py-4 text-right">Joined</th>
+                            <tr>
+                                <th>Account Name</th>
+                                <th>NTN / Email</th>
+                                <th class="text-right">Joined</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
+                        <tbody>
                             @forelse($latestClients as $client)
-                            <tr class="hover:bg-slate-50/50 transition-colors group/row">
-                                <td class="px-6 py-4">
-                                    <span class="text-[13px] font-bold text-slate-700 tracking-tight">{{ $client->name }}</span>
+                            <tr>
+                                <td>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-full bg-[#f1f5f9] text-[#334155] grid place-items-center font-bold text-[11px]">
+                                            {{ substr($client->name, 0, 1) }}
+                                        </div>
+                                        <span class="font-bold">{{ $client->name }}</span>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <span class="text-[13px] font-medium text-slate-500">{{ $client->email ?: '---' }}</span>
-                                </td>
-                                <td class="px-6 py-4 text-right">
-                                    <span class="text-[12px] font-semibold text-slate-400 uppercase tracking-tight">{{ $client->created_at->format('M d, Y') }}</span>
-                                </td>
+                                <td class="text-[#64748b] text-[13px]">{{ $client->ntn_no ?: $client->email ?: '---' }}</td>
+                                <td class="text-right text-[12px] text-[#64748b] font-medium">{{ $client->created_at->format('M d, Y') }}</td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="3" class="px-6 py-12 text-center text-slate-400 italic text-sm">No new clients joined recently.</td>
+                                <td colspan="3" class="text-center py-10 text-[#64748b] italic">No new clients recently.</td>
                             </tr>
                             @endforelse
                         </tbody>

@@ -52,9 +52,10 @@ class BillController extends Controller
     public function create()
     {
         $clients = Client::all();
+        $dynamicCartages = \App\Models\Cartage::all()->pluck('amount', 'port_name');
+        
         $settings = [
-            'cartage_kict' => Setting::get('cartage_kict', 23000),
-            'cartage_port_qasim' => Setting::get('cartage_port_qasim', 30000),
+            'cartages' => $dynamicCartages,
             'sales_tax_rate' => Setting::get('sales_tax_rate_default', 15),
             'agency_commission' => Setting::get('agency_commission_default', 8500),
         ];
@@ -152,7 +153,8 @@ class BillController extends Controller
 
             $bill->update([
                 'sales_tax_amount' => $salesTaxAmount,
-                'total_amount' => $finalTotal
+                'total_amount' => $finalTotal,
+                'paid_amount' => $validated['status'] === 'paid' ? $finalTotal : 0
             ]);
 
             return redirect()->route('bills.index')->with('success', 'Bill generated successfully.');
@@ -173,9 +175,10 @@ class BillController extends Controller
 
         $bill->load('items');
         $clients = Client::orderBy('name')->get();
+        $dynamicCartages = \App\Models\Cartage::all()->pluck('amount', 'port_name');
+
         $settings = [
-            'cartage_kict' => Setting::get('cartage_kict', 23000),
-            'cartage_port_qasim' => Setting::get('cartage_port_qasim', 30000),
+            'cartages' => $dynamicCartages,
             'sales_tax_rate' => Setting::get('sales_tax_rate_default', 15),
             'agency_commission' => Setting::get('agency_commission_default', 8500),
         ];
@@ -276,7 +279,8 @@ class BillController extends Controller
 
             $bill->update([
                 'sales_tax_amount' => $salesTaxAmount,
-                'total_amount' => $finalTotal
+                'total_amount' => $finalTotal,
+                'paid_amount' => $validated['status'] === 'paid' ? $finalTotal : 0
             ]);
 
             return redirect()->route('bills.index')->with('success', 'Bill updated successfully.');

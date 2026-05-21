@@ -1,29 +1,32 @@
 <x-admin-layout>
-    <div class="flex flex-col space-y-6">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="space-y-6">
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Outstanding Balances</h1>
-                <p class="text-sm text-slate-500">Summary of unpaid bills across all client accounts</p>
+                <h1 class="text-2xl font-bold text-[#0f172a]">Outstanding Receivables</h1>
+                <p class="text-[#64748b] text-[14px] mt-1">Consolidated view of all unpaid client balances and aging debt</p>
             </div>
-            <div class="flex items-center space-x-2">
-                <button type="button" onclick="window.print()" class="inline-flex items-center px-4 py-2 bg-white border border-slate-200 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-50 transition-all uppercase tracking-wider shadow-sm">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    Print Report
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="window.print()" class="btn-soft py-2 text-[13px]">
+                    <i class="bi bi-printer me-1"></i> Print Summary
                 </button>
             </div>
         </div>
         
         <!-- Summary Widgets -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 block">Total Outstanding</span>
-                <h3 class="text-2xl font-bold text-rose-600">PKR {{ number_format($totalOutstanding, 0) }}</h3>
+        <div class="grid-2-cols gap-6">
+            <div class="card-c p-6 border-l-4 border-l-[#dc2626]">
+                <div class="text-[#64748b] text-[11px] font-bold uppercase tracking-widest">Total Outstanding Exposure</div>
+                <div class="text-3xl font-black text-[#0f172a] mt-2">
+                    <span class="text-sm me-1 opacity-60">PKR</span>{{ number_format($totalOutstanding, 0) }}
+                </div>
+                <div class="text-[12px] text-[#64748b] mt-1 font-medium italic">Uncollected revenue across all accounts</div>
             </div>
 
-            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 block">Active Debtors</span>
-                <h3 class="text-2xl font-bold text-amber-600">{{ number_format($totalClientsWithBalance) }} Clients</h3>
+            <div class="card-c p-6 border-l-4 border-l-[#1565c0]">
+                <div class="text-[#64748b] text-[11px] font-bold uppercase tracking-widest">Active Debtors</div>
+                <div class="text-3xl font-black text-[#0f172a] mt-2">{{ number_format($totalClientsWithBalance) }} <span class="text-sm font-bold opacity-60 uppercase">Accounts</span></div>
+                <div class="text-[12px] text-[#64748b] mt-1 font-medium italic">Clients with non-zero outstanding balances</div>
             </div>
         </div>
 
@@ -34,65 +37,86 @@
         />
 
         <!-- Report Data Table -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="card-c overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs whitespace-nowrap">
+                <table class="table-c">
                     <thead>
-                        <tr class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider">
-                            <th class="px-6 py-4">Client Name</th>
-                            <th class="px-6 py-4 text-right">Total Billing</th>
-                            <th class="px-6 py-4 text-right">Recovered</th>
-                            <th class="px-6 py-4 text-right">Outstanding</th>
-                            <th class="px-6 py-4 text-center">Last Payment</th>
+                        <tr>
+                            <th>Client Account</th>
+                            <th class="text-right">Total Invoiced</th>
+                            <th class="text-right">Total Recovered</th>
+                            <th class="text-right">Balance Due</th>
+                            <th class="text-center">Last Transaction</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody>
                         @forelse($paginatedClients as $client)
-                            <tr>
-                                <td class="px-6 py-4">
-                                    <div class="font-bold text-slate-800">{{ $client->name }}</div>
+                            <tr class="hover:bg-[#f8fafc]">
+                                <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-[#f1f5f9] grid place-items-center font-bold text-[#1565c0] text-xs">
+                                            {{ substr($client->name, 0, 1) }}
+                                        </div>
+                                        <div class="font-bold text-[#0f172a]">{{ $client->name }}</div>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 text-right font-bold text-slate-700">{{ number_format($client->total_billing, 2) }}</td>
-                                <td class="px-6 py-4 text-right text-emerald-600">{{ number_format($client->total_paid, 2) }}</td>
-                                <td class="px-6 py-4 text-right font-bold text-rose-600">
+                                <td class="text-right font-semibold text-[#334155]">{{ number_format($client->total_billing, 2) }}</td>
+                                <td class="text-right text-[#16a34a] font-semibold">{{ number_format($client->total_paid, 2) }}</td>
+                                <td class="text-right font-black text-[#dc2626]">
                                     {{ number_format($client->remaining_balance, 2) }}
                                 </td>
-                                <td class="px-6 py-4 text-center text-slate-500">
-                                    {{ $client->last_payment_date ? \Carbon\Carbon::parse($client->last_payment_date)->format('d M, Y') : '---' }}
+                                <td class="text-center text-[#64748b] font-medium italic text-[11px]">
+                                    {{ $client->last_payment_date ? \Carbon\Carbon::parse($client->last_payment_date)->format('d M, Y') : 'No History' }}
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-10 text-center text-slate-400 italic">No outstanding balances found.</td>
+                                <td colspan="5" class="text-center py-20 text-[#64748b] bg-[#f8fafc]/50">
+                                    <div class="flex flex-col items-center">
+                                        <i class="bi bi-shield-check text-3xl mb-2 text-[#16a34a]"></i>
+                                        <div class="font-bold">No outstanding balances found</div>
+                                        <p class="text-xs mt-1">All client accounts are currently settled.</p>
+                                    </div>
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
             @if($paginatedClients->hasPages())
-                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100">
+                <div class="px-6 py-4 bg-[#f8fafc] border-t border-[#e5e9f2]">
                     {{ $paginatedClients->links() }}
                 </div>
             @endif
         </div>
     </div>
 
-    <!-- Print Header -->
-    <div class="print-header hidden p-8 text-center border-b-2 border-slate-900 mb-8">
-        <h1 class="text-2xl font-bold text-slate-900 uppercase">SEA PEARL SERVICES</h1>
-        <p class="text-xs text-slate-500 uppercase tracking-widest">Customs Clearing Agent & Logistics</p>
-        <h2 class="text-lg font-bold uppercase text-slate-800 mt-4">Outstanding Balances Report</h2>
-        <p class="text-xs mt-2">Printed: {{ date('d M, Y h:i A') }}</p>
+    <!-- Print View -->
+    <div class="print-only hidden p-8 border-2 border-[#0b1f3a] mb-8">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-[#0b1f3a] uppercase">Sea Pearl Services</h1>
+                <p class="text-xs text-[#64748b] font-bold uppercase tracking-widest">Customs Clearing Agent & Logistics</p>
+            </div>
+            <div class="text-right text-xs">
+                <div class="font-bold">Statement Date:</div>
+                <div>{{ date('d M, Y h:i A') }}</div>
+            </div>
+        </div>
+        <div class="text-center mb-8 border-y border-[#e5e9f2] py-4 bg-[#f8fafc]">
+            <h2 class="text-lg font-bold uppercase text-[#0b1f3a]">Outstanding Balances Summary</h2>
+        </div>
     </div>
 
     <style>
         @media print {
-            aside, nav, header, form, .print\:hidden { display: none !important; }
-            body { background: white !important; }
-            .print-header { display: block !important; }
-            .bg-white { border: none !important; }
-            table { border: 1px solid #ddd !important; }
-            th, td { border: 1px solid #ddd !important; padding: 10px !important; }
+            aside, nav, header, form, .print-hidden, .card-c.p-4 { display: none !important; }
+            body { background: white !important; padding: 0 !important; }
+            main { padding: 0 !important; max-width: 100% !important; }
+            .print-only { display: block !important; }
+            .card-c { border: none !important; box-shadow: none !important; }
+            .table-c { border: 1px solid #e5e9f2 !important; width: 100% !important; }
+            .table-c th, .table-c td { border: 1px solid #e5e9f2 !important; padding: 8px !important; color: black !important; }
         }
     </style>
 </x-admin-layout>

@@ -87,10 +87,9 @@
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Location / Port</label>
                                 <select name="location" x-model="location" @change="calculateCartage()" class="w-full text-sm border-slate-200 rounded focus:ring-emerald-500 focus:border-emerald-500">
                                     <option value="">Select location...</option>
-                                    <option value="kict">KICT</option>
-                                    <option value="sapt">SAPT</option>
-                                    <option value="kgtl">KGTL</option>
-                                    <option value="port_qasim">Port Qasim</option>
+                                    @foreach($settings['cartages'] as $port => $amount)
+                                        <option value="{{ $port }}">{{ $port }}</option>
+                                    @endforeach
                                     <option value="other">Other</option>
                                 </select>
                             </div>
@@ -234,12 +233,7 @@
                 containerCount: parseInt(billData.container_count) || 1,
                 agencyCommission: parseFloat(billData.agency_commission) || 0,
                 salesTaxRate: parseFloat(billData.sales_tax_percentage) || 0,
-                cartageRates: {
-                    kict: {{ $settings['cartage_kict'] }},
-                    sapt: {{ $settings['cartage_kict'] }},
-                    kgtl: {{ $settings['cartage_kict'] }},
-                    port_qasim: {{ $settings['cartage_port_qasim'] }}
-                },
+                cartageRates: @json($settings['cartages']),
                 items: billItemsData.map(i => ({
                     id: i.id,
                     particular_name: i.particular_name,

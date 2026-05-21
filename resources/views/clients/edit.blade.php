@@ -17,6 +17,10 @@
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Company / Client Name</label>
                         <input type="text" name="name" required value="{{ old('name', $client->name) }}" class="w-full text-sm border-slate-200 rounded focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Owner Name</label>
+                        <input type="text" name="owner_name" value="{{ old('owner_name', $client->owner_name) }}" class="w-full text-sm border-slate-200 rounded focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Email Address</label>
                         <input type="email" name="email" value="{{ old('email', $client->email) }}" class="w-full text-sm border-slate-200 rounded focus:ring-indigo-500 focus:border-indigo-500">

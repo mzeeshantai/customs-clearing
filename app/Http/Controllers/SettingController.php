@@ -10,7 +10,9 @@ class SettingController extends Controller
     public function index()
     {
         $settings = Setting::all()->groupBy('group');
-        return view('settings.index', compact('settings'));
+        $cartages = \App\Models\Cartage::all();
+        $cartageCount = $cartages->count();
+        return view('settings.index', compact('settings', 'cartages', 'cartageCount'));
     }
 
     public function update(Request $request)

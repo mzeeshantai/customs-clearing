@@ -33,10 +33,10 @@
         <!-- Top Clients Section -->
         @if($topClients->count() > 0)
         <div>
-            <h2 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-4 ml-1">Top Performing Partners</h2>
-            <div class="flex flex-nowrap items-stretch gap-4 overflow-x-auto pb-6 custom-scrollbar lg:overflow-visible lg:pb-0">
+            <h2 class="side-section-title px-1">Top Performing Partners</h2>
+            <div class="grid-5-cols">
                 @foreach($topClients as $index => $topClient)
-                    <div class="relative overflow-hidden bg-indigo-600 p-4 rounded-[1.5rem] shadow-xl group transition-all hover:scale-105 min-w-[240px] flex-1 cursor-pointer"
+                    <div class="card-c p-5 group transition-all hover:border-[#1565c0] cursor-pointer"
                          @click="selectedClient = { 
                             name: '{{ $topClient->name }}', 
                             total_revenue: {{ $topClient->total_revenue ?: 0 }},
@@ -44,20 +44,19 @@
                             pending_amount: {{ $topClient->pending_amount ?: 0 }},
                             monthly_collection: {{ $topClient->monthly_collection ?: 0 }}
                          }; showModal = true">
-                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
-                        <div class="relative z-10 flex flex-col h-full justify-between">
+                        <div class="flex flex-col h-full justify-between">
                             <div>
-                                <span class="px-2 py-0.5 bg-white/20 text-white text-[9px] font-black uppercase rounded tracking-widest border border-white/10">Rank #{{ $index + 1 }}</span>
-                                <h4 class="text-sm font-black text-white mt-2 truncate leading-tight uppercase tracking-tight">{{ $topClient->name }}</h4>
+                                <div class="flex justify-between items-start">
+                                    <span class="badge-c {{ $index === 0 ? 'success' : 'amber' }} py-1 px-2 text-[9px]">Rank #{{ $index + 1 }}</span>
+                                    <div class="text-[#1565c0] opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i class="bi bi-graph-up-arrow"></i>
+                                    </div>
+                                </div>
+                                <h4 class="text-[13px] font-bold text-[#0f172a] mt-3 truncate uppercase tracking-tight">{{ $topClient->name }}</h4>
                             </div>
-                            <div class="mt-8 flex items-end justify-between">
-                                <div class="flex flex-col">
-                                    <span class="text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Revenue</span>
-                                    <span class="text-lg font-black text-white tracking-tighter">{{ number_format($topClient->total_revenue, 0) }} <span class="text-[9px]">PKR</span></span>
-                                </div>
-                                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-                                </div>
+                            <div class="mt-6">
+                                <div class="text-[10px] font-bold text-[#64748b] uppercase tracking-widest">Revenue</div>
+                                <div class="text-lg font-black text-[#1565c0] tracking-tighter">{{ number_format($topClient->total_revenue, 0) }} <span class="text-[9px] text-[#64748b]">PKR</span></div>
                             </div>
                         </div>
                     </div>
@@ -163,30 +162,30 @@
         </x-report-filter>
 
         <!-- Report Data Table -->
-        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="overflow-x-auto custom-scrollbar">
-                <table class="w-full text-left text-xs whitespace-nowrap">
+        <div class="card-c overflow-hidden mt-2">
+            <div class="overflow-x-auto">
+                <table class="table-c">
                     <thead>
-                        <tr class="bg-slate-50/50 text-slate-400 font-bold uppercase tracking-[0.15em] text-[10px]">
-                            <th class="px-6 py-5 border-b border-slate-100">Client Name</th>
-                            <th class="px-6 py-5 border-b border-slate-100 text-center">Invoices</th>
-                            <th class="px-6 py-5 border-b border-slate-100 text-right">Revenue Generated</th>
-                            <th class="px-6 py-5 border-b border-slate-100 text-right">Payment Received</th>
-                            <th class="px-6 py-5 border-b border-slate-100 text-right">Outstanding</th>
+                        <tr>
+                            <th>Client Name</th>
+                            <th class="text-center">Invoices</th>
+                            <th class="text-right">Revenue Generated</th>
+                            <th class="text-right">Payment Received</th>
+                            <th class="text-right">Outstanding</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-50">
+                    <tbody>
                         @forelse($paginatedClients as $client)
                             <tr class="hover:bg-slate-50/50 transition-colors">
-                                <td class="px-6 py-5 font-black text-slate-800 uppercase tracking-tight">{{ $client->name }}</td>
-                                <td class="px-6 py-5 text-center text-slate-600 font-black">{{ $client->total_bills }}</td>
-                                <td class="px-6 py-5 text-right font-black text-slate-900">{{ number_format($client->total_revenue, 2) }}</td>
-                                <td class="px-6 py-5 text-right font-black text-blue-600">{{ number_format($client->total_paid, 2) }}</td>
-                                <td class="px-6 py-5 text-right font-black text-rose-500">{{ number_format($client->pending_amount, 2) }}</td>
+                                <td class="font-bold text-[#0f172a] uppercase tracking-tight">{{ $client->name }}</td>
+                                <td class="text-center text-[#64748b] font-bold">{{ $client->total_bills }}</td>
+                                <td class="text-right font-black text-[#0f172a]">{{ number_format($client->total_revenue, 2) }}</td>
+                                <td class="text-right font-bold text-[#16a34a]">{{ number_format($client->total_paid, 2) }}</td>
+                                <td class="text-right font-black text-[#dc2626]">{{ number_format($client->pending_amount, 2) }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-6 py-20 text-center text-slate-400 font-black italic">No records found.</td>
+                                <td colspan="5" class="text-center py-20 text-slate-400 font-bold italic">No records found.</td>
                             </tr>
                         @endforelse
                     </tbody>

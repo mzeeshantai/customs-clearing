@@ -86,10 +86,9 @@
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Location / Port</label>
                                 <select name="location" x-model="location" @change="calculateCartage()" class="w-full text-sm border-slate-200 rounded focus:ring-emerald-500 focus:border-emerald-500">
                                     <option value="">Select location...</option>
-                                    <option value="kict">KICT</option>
-                                    <option value="sapt">SAPT</option>
-                                    <option value="kgtl">KGTL</option>
-                                    <option value="port_qasim">Port Qasim</option>
+                                    @foreach($settings['cartages'] as $port => $amount)
+                                        <option value="{{ $port }}">{{ $port }}</option>
+                                    @endforeach
                                     <option value="other">Other</option>
                                 </select>
                             </div>
@@ -216,12 +215,7 @@
                 containerCount: 1,
                 agencyCommission: {{ $settings['agency_commission'] }},
                 salesTaxRate: {{ $settings['sales_tax_rate'] }},
-                cartageRates: {
-                    kict: {{ $settings['cartage_kict'] }},
-                    sapt: {{ $settings['cartage_kict'] }},
-                    kgtl: {{ $settings['cartage_kict'] }},
-                    port_qasim: {{ $settings['cartage_port_qasim'] }}
-                },
+                cartageRates: @json($settings['cartages']),
                 items: [
                     { particular_name: 'Custom Duty and other Taxes', receipt_type: 'P.D', actual_amount: 0, pay_order_amount: 0, is_paid_by_agent: false, short_payment: 0, is_fixed: true },
                     { particular_name: 'Token for GD Filling', receipt_type: '', actual_amount: 500, pay_order_amount: 0, is_paid_by_agent: true, short_payment: 0, is_fixed: true },
